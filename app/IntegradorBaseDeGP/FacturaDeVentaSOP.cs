@@ -67,17 +67,17 @@ namespace IntegradorDeGP
         {
             try
             {
-                String sopnumbe = hojaXl.Cells[fila, int.Parse(param.FacturaSopnumbe)].Value.ToString().Trim();
+                String sopnumbe = hojaXl.Cells[fila, param.FacturaSopnumbe].Value.ToString().Trim();
                 String serie = sopnumbe.Substring(0, 1);
 
                 facturaSopCa.BACHNUMB = sTimeStamp;
                 facturaSopCa.SOPTYPE = 3;
                 facturaSopCa.DOCID = "SERIE " + serie;
                 facturaSopCa.SOPNUMBE = sopnumbe;
-                facturaSopCa.DOCDATE = DateTime.Parse(hojaXl.Cells[fila, int.Parse(param.FacturaSopDocdate)].Value.ToString().Trim()).ToString(param.FormatoFechaXL);
-                facturaSopCa.DUEDATE = DateTime.Parse(hojaXl.Cells[fila, int.Parse(param.FacturaSopDuedate)].Value.ToString().Trim()).ToString(param.FormatoFechaXL);
+                facturaSopCa.DOCDATE = DateTime.Parse(hojaXl.Cells[fila, param.FacturaSopDocdate].Value.ToString().Trim()).ToString(param.FormatoFechaXL);
+                facturaSopCa.DUEDATE = DateTime.Parse(hojaXl.Cells[fila, param.FacturaSopDuedate].Value.ToString().Trim()).ToString(param.FormatoFechaXL);
 
-                String custnmbr = hojaXl.Cells[fila, int.Parse(param.FacturaSopTXRGNNUM)].Value == null ? "_enblanco" : hojaXl.Cells[fila, int.Parse(param.FacturaSopTXRGNNUM)].Value.ToString().Trim();
+                String custnmbr = hojaXl.Cells[fila, param.FacturaSopTXRGNNUM].Value == null ? "_enblanco" : hojaXl.Cells[fila, param.FacturaSopTXRGNNUM].Value.ToString().Trim();
                 facturaSopCa.CUSTNMBR = getCustomer(custnmbr);
 
                 facturaSopCa.CREATETAXES = 1;   //1:crear impuestos automáticamente
@@ -93,7 +93,7 @@ namespace IntegradorDeGP
                 facturaSopDe.DEFEXTPRICE = 1;   //1: calcular el precio extendido en base al precio unitario y la cantidad
 
                 Decimal unitprice = 0;
-                if (Decimal.TryParse(hojaXl.Cells[fila, int.Parse(param.FacturaSopUNITPRCE)].Value.ToString(), out unitprice))
+                if (Decimal.TryParse(hojaXl.Cells[fila, param.FacturaSopUNITPRCE].Value.ToString(), out unitprice))
                 {
                     facturaSopCa.SUBTOTAL = Decimal.Round(unitprice, 2);
                     facturaSopCa.DOCAMNT = facturaSopCa.SUBTOTAL;

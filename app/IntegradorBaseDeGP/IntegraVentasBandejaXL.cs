@@ -11,10 +11,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using InterfacesDeIntegracionGP;
 
 namespace IntegradorDeGP
 {
-    public class IntegraVentasBandejaXL
+    public class IntegraVentasBandejaXL: IIntegraVentasBandejaXL
     {
         private int _iError;
         private string _sMensajeErr;
@@ -52,24 +53,34 @@ namespace IntegradorDeGP
             }
         }
 
-        public delegate void LogHandler(int iAvance, string sMsj);
-        public event LogHandler Progreso;
-        public event LogHandler Actualiza;
+        public Action<int, string> ProgressHandler;
+        public Action<int, string> ActualizaHandler;
+        public void OnProgreso(int iAvance, string sMsj)
+        {
+            ProgressHandler?.Invoke(iAvance, sMsj);
+        }
+        public void OnActualiza(int i, string carpeta)
+        {
+            ActualizaHandler?.Invoke(i, carpeta);
+        }
 
+        //public delegate void LogHandler(int iAvance, string sMsj);
+        //public event LogHandler Progreso;
+        //public event LogHandler Actualiza;
         /// <summary>
         /// Dispara el evento para actualizar la barra de progreso
         /// </summary>
         /// <param name="iProgreso"></param>
-        public void OnProgreso(int iAvance, string sMsj)
-        {
-            if (Progreso != null)
-                Progreso(iAvance, sMsj);
-        }
-        public void OnActualiza(int i, string carpeta)
-        {
-            if (Actualiza != null)
-                Actualiza(i, carpeta);
-        }
+        //public void OnProgreso(int iAvance, string sMsj)
+        //{
+        //    if (Progreso != null)
+        //        Progreso(iAvance, sMsj);
+        //}
+        //public void OnActualiza(int i, string carpeta)
+        //{
+        //    if (Actualiza != null)
+        //        Actualiza(i, carpeta);
+        //}
 
         public IntegraVentasBandejaXL(IParametrosXL paramIntegraGP)
         {
@@ -125,9 +136,9 @@ namespace IntegradorDeGP
 
             try
             {
-                _mensaje = " Número Doc: " + hojaXl.Cells[filaXl, int.Parse(_ParamExcel.FacturaSopnumbe)].Value.ToString().Trim() ;
+                _mensaje = " Número Doc: " + hojaXl.Cells[filaXl, _ParamExcel.FacturaSopnumbe].Value.ToString().Trim() ;
 
-                entidadCliente = new Cliente(_ParamExcel.ConnectionStringTargetEF, _ParamExcel.FacturaSopTXRGNNUM, _ParamExcel.FacturaSopCUSTNAME, _ParamExcel.ClienteDefaultCUSTCLAS);
+                entidadCliente = new Cliente(_ParamExcel.ConnectionStringTargetEF, _ParamExcel.FacturaSopTXRGNNUM.ToString(), _ParamExcel.FacturaSopCUSTNAME.ToString(), _ParamExcel.ClienteDefaultCUSTCLAS);
                 if (entidadCliente.preparaClienteEconn(hojaXl, filaXl))
                 {
                    entEconnect.RMCustomerMasterType = entidadCliente.ArrCustomerType;
@@ -268,5 +279,97 @@ namespace IntegradorDeGP
             }
         }
 
+        public void ProcesaCarpetaEnTrabajo(string transicion, List<string> archivosSeleccionados)
+        {
+            try
+            {
+                _iError = 0;
+                DirectoryInfo enTrabajoDir = new DirectoryInfo(this._ParamExcel.rutaCarpeta.ToString() + "\\EnTrabajo");
+                archivosExcel archivosEnTrabajo = new archivosExcel();
+
+                foreach (string item in archivosSeleccionados)
+                {
+                    _iError = 0;
+                    string sTimeStamp = System.DateTime.Now.ToString("yyMMddHHmmssfff");
+                    string sNombreArchivo = item;
+
+                    archivosEnTrabajo.abreArchivoExcel(enTrabajoDir.ToString(), sNombreArchivo);
+                    ExcelWorksheet hojaXl = archivosEnTrabajo.paqueteExcel.Workbook.Worksheets.First();
+                    if (archivosEnTrabajo.iError == 0)
+                    {
+                        int startRow = _ParamExcel.FacturaSopFilaInicial;
+                        int iTotal = hojaXl.Dimension.End.Row - startRow + 1;
+                        int iFacturasIntegradas = 0;
+                        int iFilasIntegradas = 0;
+                        int iFacturaIniciaEn = 0;
+                        int iAntesIntegradas = 0;
+                        OnProgreso(1, "INICIANDO CARGA DE ARCHIVO " + sNombreArchivo + "...");              //Notifica al suscriptor
+                        if (startRow > 1)
+                            hojaXl.Cells[startRow - 1, this._ParamExcel.FacturaSopColumnaMensajes].Value = "Observaciones";
+
+                        for (int rowNumber = startRow; rowNumber <= hojaXl.Dimension.End.Row; rowNumber++)
+                        {
+                            if (hojaXl.Cells[rowNumber, this._ParamExcel.FacturaSopColumnaMensajes].Value == null ||
+                                !hojaXl.Cells[rowNumber, this._ParamExcel.FacturaSopColumnaMensajes].Value.ToString().Equals("Integrado a GP"))
+                            {
+                                IntegraFacturaSOP(hojaXl, rowNumber, sTimeStamp);
+
+                                iFacturaIniciaEn = rowNumber;
+                                rowNumber = _filaNuevaFactura - 1;
+
+                                if (_iError == 0)
+                                {
+                                    iFacturasIntegradas++;
+                                    for (int ind = iFacturaIniciaEn; ind <= rowNumber; ind++)
+                                    {
+                                        hojaXl.Cells[ind, this._ParamExcel.FacturaSopColumnaMensajes].Value = "Integrado a GP";
+                                        iFilasIntegradas++;
+                                    }
+                                }
+                                else
+                                {
+                                    hojaXl.Cells[rowNumber, this._ParamExcel.FacturaSopColumnaMensajes].Value = _sMensajeErr;
+                                }
+                            }
+                            else
+                            {
+                                iAntesIntegradas++;
+                                this._mensaje = "Fila: " + rowNumber.ToString();
+                                this._sMensajeErr = "anteriormente integrada.";
+                            }
+                            OnProgreso(100 / iTotal, _mensaje + " " + _sMensajeErr);
+                        }
+                        OnProgreso(100, "----------------------------------------------");
+                        _sMensajeErr = "INTEGRACION FINALIZADA";
+                        OnProgreso(100, _sMensajeErr);
+                        OnProgreso(100, "Nuevas facturas integradas: " + iFacturasIntegradas.ToString());
+                        OnProgreso(100, "Nuevas filas integradas: " + iFilasIntegradas.ToString());
+                        OnProgreso(100, "Número de filas con error: " + (iTotal - iFilasIntegradas - iAntesIntegradas).ToString());
+                        OnProgreso(100, "Número de filas anteriormente integradas: " + iAntesIntegradas.ToString());
+                        OnProgreso(100, "Total de filas leídas: " + iTotal.ToString());
+                        archivosEnTrabajo.paqueteExcel.Save();
+                        archivosEnTrabajo.paqueteExcel.Dispose();
+                        archivosEnTrabajo.mueveAFinalizado(sNombreArchivo, this._ParamExcel.rutaCarpeta.ToString(), sTimeStamp);
+
+                        if (archivosEnTrabajo.iError != 0)
+                            OnProgreso(100, archivosEnTrabajo.sMensaje);
+
+                        OnActualiza(0, _ParamExcel.rutaCarpeta);
+                    }
+                    else
+                        OnProgreso(0, archivosEnTrabajo.sMensaje);
+                }
+            }
+            catch (Exception errorGral)
+            {
+                String im = errorGral.InnerException == null ? " " : " " + errorGral.InnerException.Message;
+                if (errorGral.InnerException != null)
+                    im += errorGral.InnerException.InnerException == null ? " " : " " + errorGral.InnerException.InnerException.Message;
+
+                _sMensajeErr = "Excepción al leer la carpeta En trabajo. (Verifique que la versión del archivo excel sea 2007 o superior) " + errorGral.Message + im + errorGral.TargetSite.ToString();
+                _iError++;
+                OnProgreso(0, _sMensajeErr);
+            }
+        }
     }
 }
