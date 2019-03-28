@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using InterfacesDeIntegracionGP;
+using notaFiscalCsvHelper;
 
 namespace IntegradorDeGP
 {
@@ -279,31 +280,30 @@ namespace IntegradorDeGP
             }
         }
 
-        public void ProcesaCarpetaEnTrabajo(string transicion, List<string> archivosSeleccionados)
+        public void ProcesaCarpetaEnTrabajo(string carpetaOrigen, string transicion, List<string> archivosSeleccionados)
         {
             try
             {
-                _iError = 0;
+                LectorCSV csv = new LectorCSV();
+                var archivosXl = csv.ConvierteCsvAExcel(archivosSeleccionados);
+
                 DirectoryInfo enTrabajoDir = new DirectoryInfo(this._ParamExcel.rutaCarpeta.ToString() + "\\EnTrabajo");
-                archivosExcel archivosEnTrabajo = new archivosExcel();
 
-                foreach (string item in archivosSeleccionados)
+                foreach (ExcelPackage item in archivosXl)
                 {
-                    _iError = 0;
-                    string sTimeStamp = System.DateTime.Now.ToString("yyMMddHHmmssfff");
-                    string sNombreArchivo = item;
-
-                    archivosEnTrabajo.abreArchivoExcel(enTrabajoDir.ToString(), sNombreArchivo);
-                    ExcelWorksheet hojaXl = archivosEnTrabajo.paqueteExcel.Workbook.Worksheets.First();
-                    if (archivosEnTrabajo.iError == 0)
+                    try
                     {
+                        _iError = 0;
+                        string sTimeStamp = System.DateTime.Now.ToString("yyMMddHHmmssfff");
+                        string sNombreArchivo = Path.GetFileName(item.Workbook.Properties.Title);
+                        ExcelWorksheet hojaXl = item.Workbook.Worksheets.First();
                         int startRow = _ParamExcel.FacturaSopFilaInicial;
                         int iTotal = hojaXl.Dimension.End.Row - startRow + 1;
                         int iFacturasIntegradas = 0;
                         int iFilasIntegradas = 0;
                         int iFacturaIniciaEn = 0;
                         int iAntesIntegradas = 0;
-                        OnProgreso(1, "INICIANDO CARGA DE ARCHIVO " + sNombreArchivo + "...");              //Notifica al suscriptor
+                        OnProgreso(1, "INICIANDO CARGA DE ARCHIVO " + item.Workbook.Properties.Title + "...");              //Notifica al suscriptor
                         if (startRow > 1)
                             hojaXl.Cells[startRow - 1, this._ParamExcel.FacturaSopColumnaMensajes].Value = "Observaciones";
 
@@ -347,17 +347,18 @@ namespace IntegradorDeGP
                         OnProgreso(100, "Número de filas con error: " + (iTotal - iFilasIntegradas - iAntesIntegradas).ToString());
                         OnProgreso(100, "Número de filas anteriormente integradas: " + iAntesIntegradas.ToString());
                         OnProgreso(100, "Total de filas leídas: " + iTotal.ToString());
-                        archivosEnTrabajo.paqueteExcel.Save();
-                        archivosEnTrabajo.paqueteExcel.Dispose();
-                        archivosEnTrabajo.mueveAFinalizado(sNombreArchivo, this._ParamExcel.rutaCarpeta.ToString(), sTimeStamp);
 
-                        if (archivosEnTrabajo.iError != 0)
-                            OnProgreso(100, archivosEnTrabajo.sMensaje);
+                        item.Save();
 
-                        OnActualiza(0, _ParamExcel.rutaCarpeta);
+                        archivosExcel.mueveAFinalizado(sNombreArchivo, carpetaOrigen, Path.Combine(this._ParamExcel.rutaCarpeta, "Finalizado"), sTimeStamp);
+
                     }
-                    else
-                        OnProgreso(0, archivosEnTrabajo.sMensaje);
+                    catch (Exception x)
+                    {
+                        OnProgreso(100, x.Message);
+                    }
+
+                    OnActualiza(0, _ParamExcel.rutaCarpeta);
                 }
             }
             catch (Exception errorGral)
