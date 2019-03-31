@@ -34,10 +34,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CLManipulaArchivos, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\_DevLibrary\CLManipulaArchivos\bin\Release\CLManipulaArchivos.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -180,6 +176,10 @@
     <ProjectReference Include="..\..\..\..\BRA_DocsElectronicos\br02\app\winCompuertaGP\notaFiscalCsvHelper\notaFiscalCsvHelper.csproj">
       <Project>{aab01e3c-7364-4533-a950-b866ccee5315}</Project>
       <Name>notaFiscalCsvHelper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\_DevLibrary\CLManipulaArchivos\ManipulaArchivos.csproj">
+      <Project>{b7362735-0897-4218-95f0-a83f53bdac72}</Project>
+      <Name>ManipulaArchivos</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

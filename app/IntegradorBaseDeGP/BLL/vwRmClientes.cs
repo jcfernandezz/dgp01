@@ -17,5 +17,15 @@ namespace IntegradorDeGP.BLL
         public string custnmbr { get; set; }
         public string custname { get; set; }
         public string RESP_TYPE { get; set; }
+        public string txrgnnum { get; set; }
+        public byte inactive { get; set; }
+        public string InscricaoMunicipalTomador { get; set; }
+        public string InscricaoEstadualTomador { get; set; }
+        public string ADDRESS1 { get; set; }
+        public string ADDRESS2 { get; set; }
+        public string ADDRESS3 { get; set; }
+        public string CITY { get; set; }
+        public string STATE { get; set; }
+        public string ZIP { get; set; }
     }
 }

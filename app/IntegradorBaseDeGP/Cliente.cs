@@ -51,15 +51,15 @@ namespace IntegradorDeGP
         {
             int n = 0;
             string cliente = string.Empty;
-            using (DynamicsGPEntities gp = new DynamicsGPEntities(_DatosConexionDB))
+            using (BLL.DynamicsGPEntities gp = new BLL.DynamicsGPEntities(_DatosConexionDB))
             {
-                //agregar una vista para rm00101
-                //var c = gp.RM00101.Where(w => w.TXRGNNUM.Equals(txrgnnum.Trim()) && w.INACTIVE==0)
-                //                .Select(s => new { custnmbr = s.CUSTNMBR.Trim() });
-                //n = c.Count();
-                //foreach (var r in c)
-                //    cliente = r.custnmbr;
+                var c = gp.vwRmClientes.Where(w => w.txrgnnum.Equals(txrgnnum.Trim()) && w.inactive == 0)
+                                    .Select(s => new { custnmbr = s.custnmbr.Trim() });
+                n = c.Count();
+                foreach (var r in c)
+                    cliente = r.custnmbr;
             }
+
             return (n != 0);
         }
 

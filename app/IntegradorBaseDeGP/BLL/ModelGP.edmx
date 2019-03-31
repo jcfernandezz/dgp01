@@ -6,15 +6,25 @@
     <edmx:StorageModels>
     <Schema Namespace="ModelGP.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <!--Errors Found During Generation:
-warning 6002: The table/view 'TST12.dbo.vwRmClientes' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'GBRA.dbo.vwRmClientes' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="vwRmClientes">
           <Key>
+            <PropertyRef Name="inactive" />
+            
             <PropertyRef Name="custnmbr" />
-            
-            
           </Key>
-          <Property Name="custnmbr" Type="char" MaxLength="15" Nullable="false" />
-          <Property Name="custname" Type="char" MaxLength="65" Nullable="false" />
+          <Property Name="custnmbr" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="custname" Type="varchar" MaxLength="65" />
+          <Property Name="txrgnnum" Type="varchar" MaxLength="25" />
+          <Property Name="inactive" Type="tinyint" Nullable="false" />
+          <Property Name="InscricaoMunicipalTomador" Type="varchar" MaxLength="25" />
+          <Property Name="InscricaoEstadualTomador" Type="varchar" MaxLength="25" />
+          <Property Name="ADDRESS1" Type="varchar" MaxLength="61" />
+          <Property Name="ADDRESS2" Type="varchar" MaxLength="61" />
+          <Property Name="ADDRESS3" Type="varchar" MaxLength="61" />
+          <Property Name="CITY" Type="varchar" MaxLength="35" />
+          <Property Name="STATE" Type="varchar" MaxLength="29" />
+          <Property Name="ZIP" Type="varchar" MaxLength="11" />
           <Property Name="RESP_TYPE" Type="char" MaxLength="3" Nullable="false" />
         </EntityType>
         <Function Name="comgp_fnDocStatusPreCondiciones" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
@@ -37,6 +47,16 @@ warning 6002: The table/view 'TST12.dbo.vwRmClientes' does not have a primary ke
             <DefiningQuery>SELECT 
     [vwRmClientes].[custnmbr] AS [custnmbr], 
     [vwRmClientes].[custname] AS [custname], 
+    [vwRmClientes].[txrgnnum] AS [txrgnnum], 
+    [vwRmClientes].[inactive] AS [inactive], 
+    [vwRmClientes].[InscricaoMunicipalTomador] AS [InscricaoMunicipalTomador], 
+    [vwRmClientes].[InscricaoEstadualTomador] AS [InscricaoEstadualTomador], 
+    [vwRmClientes].[ADDRESS1] AS [ADDRESS1], 
+    [vwRmClientes].[ADDRESS2] AS [ADDRESS2], 
+    [vwRmClientes].[ADDRESS3] AS [ADDRESS3], 
+    [vwRmClientes].[CITY] AS [CITY], 
+    [vwRmClientes].[STATE] AS [STATE], 
+    [vwRmClientes].[ZIP] AS [ZIP], 
     [vwRmClientes].[RESP_TYPE] AS [RESP_TYPE]
     FROM [dbo].[vwRmClientes] AS [vwRmClientes]</DefiningQuery>
           </EntitySet>
@@ -62,10 +82,21 @@ warning 6002: The table/view 'TST12.dbo.vwRmClientes' does not have a primary ke
         <EntityType Name="vwRmClientes">
           <Key>
             <PropertyRef Name="custnmbr" />
+            <PropertyRef Name="inactive" />
           </Key>
-          <Property Name="custnmbr" Type="String" Nullable="false" MaxLength="15" FixedLength="true" Unicode="false" />
-          <Property Name="custname" Type="String" Nullable="false" MaxLength="65" FixedLength="true" Unicode="false" />
+          <Property Name="custnmbr" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="custname" Type="String" MaxLength="65" FixedLength="false" Unicode="false" />
           <Property Name="RESP_TYPE" Type="String" MaxLength="3" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="txrgnnum" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="inactive" Type="Byte" Nullable="false" />
+          <Property Name="InscricaoMunicipalTomador" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="InscricaoEstadualTomador" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="ADDRESS1" Type="String" MaxLength="61" FixedLength="false" Unicode="false" />
+          <Property Name="ADDRESS2" Type="String" MaxLength="61" FixedLength="false" Unicode="false" />
+          <Property Name="ADDRESS3" Type="String" MaxLength="61" FixedLength="false" Unicode="false" />
+          <Property Name="CITY" Type="String" MaxLength="35" FixedLength="false" Unicode="false" />
+          <Property Name="STATE" Type="String" MaxLength="29" FixedLength="false" Unicode="false" />
+          <Property Name="ZIP" Type="String" MaxLength="11" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -84,6 +115,16 @@ warning 6002: The table/view 'TST12.dbo.vwRmClientes' does not have a primary ke
           <EntitySetMapping Name="vwRmClientes">
             <EntityTypeMapping TypeName="ModelGP.vwRmClientes">
               <MappingFragment StoreEntitySet="vwRmClientes">
+                <ScalarProperty Name="ZIP" ColumnName="ZIP" />
+                <ScalarProperty Name="STATE" ColumnName="STATE" />
+                <ScalarProperty Name="CITY" ColumnName="CITY" />
+                <ScalarProperty Name="ADDRESS3" ColumnName="ADDRESS3" />
+                <ScalarProperty Name="ADDRESS2" ColumnName="ADDRESS2" />
+                <ScalarProperty Name="ADDRESS1" ColumnName="ADDRESS1" />
+                <ScalarProperty Name="InscricaoEstadualTomador" ColumnName="InscricaoEstadualTomador" />
+                <ScalarProperty Name="InscricaoMunicipalTomador" ColumnName="InscricaoMunicipalTomador" />
+                <ScalarProperty Name="inactive" ColumnName="inactive" />
+                <ScalarProperty Name="txrgnnum" ColumnName="txrgnnum" />
                 <ScalarProperty Name="RESP_TYPE" ColumnName="RESP_TYPE" />
                 <ScalarProperty Name="custname" ColumnName="custname" />
                 <ScalarProperty Name="custnmbr" ColumnName="custnmbr" />

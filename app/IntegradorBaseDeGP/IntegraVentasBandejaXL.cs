@@ -144,15 +144,25 @@ namespace IntegradorDeGP
                 {
                    entEconnect.RMCustomerMasterType = entidadCliente.ArrCustomerType;
                    serializa(entEconnect);
-                   if (eConnObject.CreateEntity(_ParamExcel.ConnStringTarget, _sDocXml))
-                        _mensaje += "--> Cliente Integrado a GP";
+                    if (_ParamExcel.seguridadIntegrada)
+                    {
+                        if (eConnObject.CreateEntity(_ParamExcel.ConnStringTarget, _sDocXml))
+                            _mensaje += "--> Cliente Integrado a GP";
+                    }
+                    else
+                        _mensaje += "--> Econnect requiere de seguridad integrada (clientes).";
                 }
 
                 documentoSOP.preparaFacturaSOP(hojaXl, filaXl, sTimeStamp, _ParamExcel);
                 docEConnectSOP.SOPTransactionType = new SOPTransactionType[] { documentoSOP.FacturaSop };
                 serializa(docEConnectSOP);
-                eConnResult = eConnObject.CreateTransactionEntity(_ParamExcel.ConnStringTarget, _sDocXml);
-                _sMensajeErr = "--> Integrado a GP";
+                if (_ParamExcel.seguridadIntegrada)
+                {
+                    eConnResult = eConnObject.CreateTransactionEntity(_ParamExcel.ConnStringTarget, _sDocXml);
+                    _sMensajeErr = "--> Integrado a GP";
+                }
+                else
+                    _sMensajeErr += "--> Econnect requiere de seguridad integrada (trx).";
             }
             catch (NullReferenceException nr)
             {
@@ -179,7 +189,11 @@ namespace IntegradorDeGP
             }
             finally
             {
-                _filaNuevaFactura = filaXl+1;
+                String serie = string.Empty;
+                string numFactura = string.Empty;
+                string sopnumbe = string.Empty;
+                _filaNuevaFactura = FacturaDeVentaSOP.CalculaFilaNuevaFactura(hojaXl, filaXl, _ParamExcel, out serie, out numFactura, out sopnumbe);
+                //_filaNuevaFactura = filaXl + documentoSOP.CantidadItemsFactura;
                 _mensaje = "Fila: " + filaXl.ToString() + _mensaje;
             }
         }
@@ -280,15 +294,16 @@ namespace IntegradorDeGP
             }
         }
 
-        public void ProcesaCarpetaEnTrabajo(string carpetaOrigen, string transicion, List<string> archivosSeleccionados)
+        public void ProcesaCarpetaEnTrabajo(string carpetaOrigen, List<string> archivosSeleccionados)
         {
             try
             {
                 LectorCSV csv = new LectorCSV();
-                var archivosXl = csv.ConvierteCsvAExcel(archivosSeleccionados);
+                IEnumerable<ExcelPackage> archivosXl = new List<ExcelPackage>();
+                archivosXl = csv.ConvierteCsvAExcel(carpetaOrigen, archivosSeleccionados);
 
                 DirectoryInfo enTrabajoDir = new DirectoryInfo(this._ParamExcel.rutaCarpeta.ToString() + "\\EnTrabajo");
-
+                string carpetaDestino = Path.Combine(this._ParamExcel.rutaCarpeta, "Finalizado");
                 foreach (ExcelPackage item in archivosXl)
                 {
                     try
@@ -296,6 +311,8 @@ namespace IntegradorDeGP
                         _iError = 0;
                         string sTimeStamp = System.DateTime.Now.ToString("yyMMddHHmmssfff");
                         string sNombreArchivo = Path.GetFileName(item.Workbook.Properties.Title);
+                        string nombreSinExtension = Path.GetFileNameWithoutExtension(sNombreArchivo);
+
                         ExcelWorksheet hojaXl = item.Workbook.Worksheets.First();
                         int startRow = _ParamExcel.FacturaSopFilaInicial;
                         int iTotal = hojaXl.Dimension.End.Row - startRow + 1;
@@ -303,7 +320,7 @@ namespace IntegradorDeGP
                         int iFilasIntegradas = 0;
                         int iFacturaIniciaEn = 0;
                         int iAntesIntegradas = 0;
-                        OnProgreso(1, "INICIANDO CARGA DE ARCHIVO " + item.Workbook.Properties.Title + "...");              //Notifica al suscriptor
+                        OnProgreso(1, "INICIANDO CARGA DE ARCHIVO " + sNombreArchivo + "...");              //Notifica al suscriptor
                         if (startRow > 1)
                             hojaXl.Cells[startRow - 1, this._ParamExcel.FacturaSopColumnaMensajes].Value = "Observaciones";
 
@@ -348,10 +365,15 @@ namespace IntegradorDeGP
                         OnProgreso(100, "Número de filas anteriormente integradas: " + iAntesIntegradas.ToString());
                         OnProgreso(100, "Total de filas leídas: " + iTotal.ToString());
 
-                        item.Save();
+                        FileInfo finfo = new FileInfo(Path.Combine(carpetaDestino, nombreSinExtension + ".xlsx"));
+                        item.SaveAs(finfo);
 
-                        archivosExcel.mueveAFinalizado(sNombreArchivo, carpetaOrigen, Path.Combine(this._ParamExcel.rutaCarpeta, "Finalizado"), sTimeStamp);
+                        archivosExcel.mueveAFinalizado(sNombreArchivo, carpetaOrigen, carpetaDestino, sTimeStamp);
 
+                    }
+                    catch (IOException io)
+                    {
+                        OnProgreso(100, "Excepción al guardar el archivo o moverlo a la carpeta " + carpetaDestino + " [ProcesaCarpetaEnTrabajo]" + io.Message);
                     }
                     catch (Exception x)
                     {
