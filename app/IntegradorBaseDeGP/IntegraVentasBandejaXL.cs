@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using InterfacesDeIntegracionGP;
-using notaFiscalCsvHelper;
+//using notaFiscalCsvHelper;
 
 namespace IntegradorDeGP
 {
-    public class IntegraVentasBandejaXL: IIntegraVentasBandejaXL
+    public class IntegraVentasBandejaXL:IIntegraVentasBandejaXL
     {
         private int _iError;
         private string _sMensajeErr;
@@ -294,13 +294,13 @@ namespace IntegradorDeGP
             }
         }
 
-        public void ProcesaCarpetaEnTrabajo(string carpetaOrigen, List<string> archivosSeleccionados)
+        public void ProcesaCarpetaEnTrabajo(string carpetaOrigen, IEnumerable<ExcelPackage> archivosXl)
         {
             try
             {
-                LectorCSV csv = new LectorCSV();
-                IEnumerable<ExcelPackage> archivosXl = new List<ExcelPackage>();
-                archivosXl = csv.ConvierteCsvAExcel(carpetaOrigen, archivosSeleccionados);
+                //LectorCSV csv = new LectorCSV();
+                //IEnumerable<ExcelPackage> archivosXl = new List<ExcelPackage>();
+                //archivosXl = csv.ConvierteCsvAExcel(carpetaOrigen, archivosSeleccionados);
 
                 DirectoryInfo enTrabajoDir = new DirectoryInfo(this._ParamExcel.rutaCarpeta.ToString() + "\\EnTrabajo");
                 string carpetaDestino = Path.Combine(this._ParamExcel.rutaCarpeta, "Finalizado");

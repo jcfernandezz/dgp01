@@ -34,6 +34,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CLManipulaArchivos">
+      <HintPath>..\..\..\..\_DevLibrary\CLManipulaArchivos\bin\Debug\CLManipulaArchivos.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -45,7 +48,8 @@
     <Reference Include="EPPlus, Version=4.5.3.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\BRA_DocsElectronicos\br02\app\winCompuertaGP\packages\EPPlus.4.5.3.1\lib\net40\EPPlus.dll</HintPath>
     </Reference>
-    <Reference Include="InterfacesIntegracionGP">
+    <Reference Include="InterfacesIntegracionGP, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\BRA_DocsElectronicos\br02\app\InterfacesIntegracionGP\bin\Debug\InterfacesIntegracionGP.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamics.GP.eConnect, Version=16.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
@@ -171,16 +175,6 @@
       <DependentUpon>ModelIntegra.edmx</DependentUpon>
       <LastGenOutput>ModelIntegra.cs</LastGenOutput>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\BRA_DocsElectronicos\br02\app\winCompuertaGP\notaFiscalCsvHelper\notaFiscalCsvHelper.csproj">
-      <Project>{aab01e3c-7364-4533-a950-b866ccee5315}</Project>
-      <Name>notaFiscalCsvHelper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\_DevLibrary\CLManipulaArchivos\ManipulaArchivos.csproj">
-      <Project>{b7362735-0897-4218-95f0-a83f53bdac72}</Project>
-      <Name>ManipulaArchivos</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -120,6 +120,14 @@ namespace IntegradorDeGP
             //}
         }
 
+        public taSopUserDefined armaFacturaDefUsuarioEconn(string usrTab01_predetValue, string usrTab02_predetValue)
+        {
+            taSopUserDefined usrDefined = new taSopUserDefined();
+            usrDefined.USRTAB01 = usrTab01_predetValue;
+            usrDefined.USRTAB03 = usrTab02_predetValue;
+            return usrDefined;
+        }
+
         public static int CalculaFilaNuevaFactura(ExcelWorksheet hojaXl, int fila, IParametrosXL param, out string serie, out string numFactura, out string sopnumbe)
         {
             int idxFila = fila;
@@ -162,6 +170,14 @@ namespace IntegradorDeGP
             facturaSopDe.ITEMDESC = hojaXl.Cells[fila, param.FacturaSopItemnmbrDescr].Value?.ToString();
             facturaSopDe.QUANTITY = 0;
             facturaSopDe.DEFEXTPRICE = 1;   //1: calcular el precio extendido en base al precio unitario y la cantidad
+
+            if (!string.IsNullOrEmpty(hojaXl.Cells[fila, param.FacturaSopDeReqShipDate].Value?.ToString()))
+                facturaSopDe.ReqShipDate =  DateTime.Parse(hojaXl.Cells[fila, param.FacturaSopDeReqShipDate].Value?.ToString().Trim()).ToString(param.FormatoFechaXL);
+
+            if (!string.IsNullOrEmpty(hojaXl.Cells[fila, param.FacturaSopDeActlShipDate].Value?.ToString()))
+                facturaSopDe.ACTLSHIP = DateTime.Parse(hojaXl.Cells[fila, param.FacturaSopDeActlShipDate].Value?.ToString().Trim()).ToString(param.FormatoFechaXL) ;
+
+            facturaSopDe.CMMTTEXT = hojaXl.Cells[fila, param.FacturaSopDeCmmttext].Value?.ToString();
 
             decimal unitprice = 0;
             if (Decimal.TryParse(hojaXl.Cells[fila, param.FacturaSopDeUNITPRCE].Value.ToString(), out unitprice))
@@ -226,6 +242,10 @@ namespace IntegradorDeGP
             int longitud = itemsDeFactura.Count;
             facturaSop.taSopLineIvcInsert_Items = new taSopLineIvcInsert_ItemsTaSopLineIvcInsert[longitud]; //{ facturaSopDe };
             facturaSop.taSopLineIvcInsert_Items = itemsDeFactura.ToArray();
+            if (param.IncluirUserDef)
+                facturaSop.taSopUserDefined = armaFacturaDefUsuarioEconn(param.Usrtab01_predetValue, param.Usrtab02_predetValue);
+
+            
 
         }
     }

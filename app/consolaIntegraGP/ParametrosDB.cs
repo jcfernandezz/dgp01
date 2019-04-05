@@ -109,6 +109,22 @@ namespace consolaIntegraGP
         private string rutaLog;
         Dictionary<string, string> idsDocumento;
 
+        private int _facturaSopDeReqShipDate;
+        private int _facturaSopDeActlShipDate;
+        private int _facturaSopDeCmmttext;
+        private string _incluirUserDef;
+        private string _usrtab01_predetValue;
+        private string _usrtab02_predetValue;
+
+        private string _intEstadoCompletado;
+        private string _intEstadosPermitidos;
+        private string _emite;
+        private string _envia;
+        private string _imprime;
+        private string _publica;
+        private string _zip;
+        private string _anula;
+
         public ParametrosDB()
         {
             //try
@@ -183,6 +199,24 @@ namespace consolaIntegraGP
                 catch
                 { }
             }
+
+            _facturaSopDeReqShipDate = int.Parse(elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/facturaSopDe/ReqShipDate/text()").Value);
+            _facturaSopDeActlShipDate = int.Parse(elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/facturaSopDe/ActlShipDate/text()").Value);
+            _facturaSopDeCmmttext = int.Parse(elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/facturaSopDe/CMMTTEXT/text()").Value);
+
+            _incluirUserDef = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/sopUserDefined/incluirUserDef/text()").Value;
+            _usrtab01_predetValue = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/sopUserDefined/usrtab01_predetValue/text()").Value;
+            _usrtab02_predetValue = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/sopUserDefined/usrtab02_predetValue/text()").Value;
+
+            _intEstadoCompletado = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/intEstadoCompletado/text()").Value;
+            _intEstadosPermitidos = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/intEstadosPermitidos/text()").Value;
+            _emite = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/emite/text()").Value;
+            _envia = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/envia/text()").Value;
+            _imprime = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/imprime/text()").Value;
+            _publica = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/publica/text()").Value;
+            _zip = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/zip/text()").Value;
+            _anula = elemento.SelectSingleNode("//compannia[@bd='" + IdCompannia + "']/anula/text()").Value;
+
 
         }
 
@@ -348,6 +382,24 @@ namespace consolaIntegraGP
                 idsDocumento = value;
             }
         }
+        public int FacturaSopDeReqShipDate { get => _facturaSopDeReqShipDate; set => _facturaSopDeReqShipDate = value; }
+        public int FacturaSopDeActlShipDate { get => _facturaSopDeActlShipDate; set => _facturaSopDeActlShipDate = value; }
+        public int FacturaSopDeCmmttext { get => _facturaSopDeCmmttext; set => _facturaSopDeCmmttext = value; }
+
+
+        public int intEstadoCompletado { get => int.Parse(_intEstadoCompletado); set => _intEstadoCompletado = value.ToString(); }
+        public int intEstadosPermitidos { get => int.Parse(_intEstadosPermitidos); set => _intEstadosPermitidos = value.ToString(); }
+        public bool emite { get => _emite.Equals("1"); set => _emite = value.ToString(); }
+        public bool envia { get => _envia.Equals("1"); set => _envia = value.ToString(); }
+        public bool imprime { get => _imprime.Equals("1"); set => _imprime = value.ToString(); }
+        public bool publica { get => _publica.Equals("1"); set => _publica = value.ToString(); }
+        public bool zip { get => _zip.Equals("1"); set => _zip = value.ToString(); }
+        public bool anula { get => _anula.Equals("1"); set => _anula = value.ToString(); }
+
+        public bool IncluirUserDef { get => _incluirUserDef.ToLower().Equals("true") || _incluirUserDef.Equals("1"); set => _incluirUserDef = value.ToString(); }
+        public string Usrtab01_predetValue { get => _usrtab01_predetValue; set => _usrtab01_predetValue = value; }
+        public string Usrtab02_predetValue { get => _usrtab02_predetValue; set => _usrtab02_predetValue = value; }
+
     }
 
 }
