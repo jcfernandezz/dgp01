@@ -137,6 +137,7 @@ namespace IntegradorDeGP
 
             try
             {
+                bool eliminado = false;
                 _mensaje = " Número Doc: " + hojaXl.Cells[filaXl, _ParamExcel.FacturaSopnumbe].Value.ToString().Trim() ;
 
                 entidadCliente = new Cliente(_ParamExcel.ConnectionStringTargetEF, _ParamExcel.FacturaSopTXRGNNUM.ToString(), _ParamExcel.FacturaSopCUSTNAME.ToString(), _ParamExcel.ClienteDefaultCUSTCLAS);
@@ -153,6 +154,17 @@ namespace IntegradorDeGP
                         _mensaje += "--> Econnect requiere de seguridad integrada (clientes).";
                 }
 
+                //elimina antes de integrar
+                var doc = documentoSOP.EliminaFacturaSOPEnLote(hojaXl, filaXl, sTimeStamp, _ParamExcel);
+                docEConnectSOP.SOPDeleteDocumentType = new SOPDeleteDocumentType[] { doc };
+                serializa(docEConnectSOP);
+                if (_ParamExcel.seguridadIntegrada)
+                {
+                    eliminado = eConnObject.DeleteTransactionEntity(_ParamExcel.ConnStringTarget, _sDocXml);
+                }
+                else
+                    _sMensajeErr += "--> Econnect requiere de seguridad integrada (trx).";
+
                 documentoSOP.preparaFacturaSOP(hojaXl, filaXl, sTimeStamp, _ParamExcel);
                 docEConnectSOP.SOPTransactionType = new SOPTransactionType[] { documentoSOP.FacturaSop };
                 serializa(docEConnectSOP);
@@ -160,6 +172,8 @@ namespace IntegradorDeGP
                 {
                     eConnResult = eConnObject.CreateTransactionEntity(_ParamExcel.ConnStringTarget, _sDocXml);
                     _sMensajeErr = "--> Integrado a GP";
+                    if (eliminado)
+                        _sMensajeErr += " (*)";
                 }
                 else
                     _sMensajeErr += "--> Econnect requiere de seguridad integrada (trx).";
@@ -189,11 +203,10 @@ namespace IntegradorDeGP
             }
             finally
             {
-                String serie = string.Empty;
-                string numFactura = string.Empty;
-                string sopnumbe = string.Empty;
-                _filaNuevaFactura = FacturaDeVentaSOP.CalculaFilaNuevaFactura(hojaXl, filaXl, _ParamExcel, out serie, out numFactura, out sopnumbe);
-                //_filaNuevaFactura = filaXl + documentoSOP.CantidadItemsFactura;
+                string sopnumbe = hojaXl.Cells[filaXl, _ParamExcel.FacturaSopnumbe].Value.ToString().Trim();
+                var llaveFactura = FacturaDeVentaSOP.ObtieneLlaveFactura(hojaXl, filaXl, _ParamExcel, sopnumbe);
+                String serie = llaveFactura.Item1;
+                _filaNuevaFactura = FacturaDeVentaSOP.CalculaFilaNuevaFactura(hojaXl, filaXl, _ParamExcel, serie, sopnumbe);
                 _mensaje = "Fila: " + filaXl.ToString() + _mensaje;
             }
         }

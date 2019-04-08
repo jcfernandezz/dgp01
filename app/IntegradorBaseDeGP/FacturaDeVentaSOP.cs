@@ -69,10 +69,13 @@ namespace IntegradorDeGP
             //int idxFila = fila;
             try
             {
-                String serie = string.Empty;
-                string numFactura = string.Empty;
-                string sopnumbe = string.Empty;
-                int idxFila = CalculaFilaNuevaFactura(hojaXl, fila, param, out serie, out numFactura, out sopnumbe);
+                string sopnumbe = hojaXl.Cells[fila, param.FacturaSopnumbe].Value.ToString().Trim();
+
+                var llaveFactura = ObtieneLlaveFactura(hojaXl, fila, param, sopnumbe);
+                String serie = llaveFactura.Item1;
+                string numFactura = llaveFactura.Item2;
+
+                int idxFila = CalculaFilaNuevaFactura(hojaXl, fila, param, serie, sopnumbe);
                 cantidadItemsFactura = idxFila - fila;
 
                 facturaSopCa.SOPNUMBE = numFactura;
@@ -81,6 +84,7 @@ namespace IntegradorDeGP
                 facturaSopCa.DOCID = "SERIE " + serie;
                 facturaSopCa.DOCDATE = DateTime.Parse(hojaXl.Cells[fila, param.FacturaSopDocdate].Value.ToString().Trim()).ToString(param.FormatoFechaXL);
                 facturaSopCa.DUEDATE = DateTime.Parse(hojaXl.Cells[fila, param.FacturaSopDuedate].Value.ToString().Trim()).ToString(param.FormatoFechaXL);
+                //facturaSopCa.UpdateExisting = 1;
 
                 String custnmbr = hojaXl.Cells[fila, param.FacturaSopTXRGNNUM].Value == null ? "_enblanco" : hojaXl.Cells[fila, param.FacturaSopTXRGNNUM].Value.ToString().Trim();
                 facturaSopCa.CUSTNMBR = getCustomer(custnmbr);
@@ -128,14 +132,29 @@ namespace IntegradorDeGP
             return usrDefined;
         }
 
-        public static int CalculaFilaNuevaFactura(ExcelWorksheet hojaXl, int fila, IParametrosXL param, out string serie, out string numFactura, out string sopnumbe)
+        public static Tuple<string, string> ObtieneLlaveFactura(ExcelWorksheet hojaXl, int fila, IParametrosXL param, string sopnumbe)
         {
-            int idxFila = fila;
-            sopnumbe = hojaXl.Cells[fila, param.FacturaSopnumbe].Value.ToString().Trim();
             if (param.FacturaSopSerieYNumbeSeparados.ToUpper().Equals("SI"))
             {
-                serie = hojaXl.Cells[fila, param.FacturaSopSerie].Value.ToString().Trim();
-                numFactura = serie + sopnumbe;
+                string serie = hojaXl.Cells[fila, param.FacturaSopSerie].Value.ToString().Trim();
+                return new Tuple<string, string> (serie, serie + sopnumbe);
+            }
+            else
+            {
+                string serie = sopnumbe.Substring(0, 1);
+                return new Tuple<string, string>(serie, sopnumbe);
+            }
+
+        }
+
+        public static int CalculaFilaNuevaFactura(ExcelWorksheet hojaXl, int fila, IParametrosXL param, string serie, string sopnumbe)
+        {
+            int idxFila = fila;
+            //sopnumbe = hojaXl.Cells[fila, param.FacturaSopnumbe].Value.ToString().Trim();
+            if (param.FacturaSopSerieYNumbeSeparados.ToUpper().Equals("SI"))
+            {
+                //serie = hojaXl.Cells[fila, param.FacturaSopSerie].Value.ToString().Trim();
+                //numFactura = serie + sopnumbe;
                 do
                 {
                     idxFila++;
@@ -145,8 +164,8 @@ namespace IntegradorDeGP
             }
             else
             {
-                serie = sopnumbe.Substring(0, 1);
-                numFactura = sopnumbe;
+                //serie = sopnumbe.Substring(0, 1);
+                //numFactura = sopnumbe;
                 do
                 {
                     idxFila++;
@@ -158,9 +177,28 @@ namespace IntegradorDeGP
             return idxFila;
         }
 
+        internal SOPDeleteDocumentType EliminaFacturaSOPEnLote(ExcelWorksheet hojaXl, int fila, string sTimeStamp, IParametrosXL param)
+        {
+            string sopnumbe = hojaXl.Cells[fila, param.FacturaSopnumbe].Value.ToString().Trim();
+            var llaveFactura = ObtieneLlaveFactura(hojaXl, fila, param, sopnumbe);
+            String serie = llaveFactura.Item1;
+            string numFactura = llaveFactura.Item2;
+
+            SOPDeleteDocumentType dt = new SOPDeleteDocumentType();
+            taSopDeleteDocument d = new taSopDeleteDocument();
+            d.SOPNUMBE = numFactura;
+            d.SOPTYPE = 3;
+            d.RemovePayments = 0;
+            dt.taSopDeleteDocument = d;
+            return (dt);
+
+        }
+
         private taSopLineIvcInsert_ItemsTaSopLineIvcInsert CreaItemsFicticiosDeFactura(ExcelWorksheet hojaXl, int fila, IParametrosXL param)
         {
             taSopLineIvcInsert_ItemsTaSopLineIvcInsert facturaSopDe = new taSopLineIvcInsert_ItemsTaSopLineIvcInsert();
+            //facturaSopDe.UpdateIfExists = 1;
+            facturaSopDe.RecreateDist = 1;  
             facturaSopDe.SOPTYPE = facturaSopCa.SOPTYPE;
             facturaSopDe.SOPNUMBE = facturaSopCa.SOPNUMBE;
             facturaSopDe.CUSTNMBR = facturaSopCa.CUSTNMBR;
@@ -192,6 +230,7 @@ namespace IntegradorDeGP
         private taSopLineIvcInsert_ItemsTaSopLineIvcInsert CreaItemDeFactura(ExcelWorksheet hojaXl, int fila, IParametrosXL param)
         {
             taSopLineIvcInsert_ItemsTaSopLineIvcInsert facturaSopDe = new taSopLineIvcInsert_ItemsTaSopLineIvcInsert();
+            //facturaSopDe.UpdateIfExists = 1;
             facturaSopDe.SOPTYPE = facturaSopCa.SOPTYPE;
             facturaSopDe.SOPNUMBE = facturaSopCa.SOPNUMBE;
             facturaSopDe.CUSTNMBR = facturaSopCa.CUSTNMBR;
