@@ -27,6 +27,23 @@ warning 6002: The table/view 'GBRA.dbo.vwRmClientes' does not have a primary key
           <Property Name="ZIP" Type="varchar" MaxLength="11" />
           <Property Name="RESP_TYPE" Type="char" MaxLength="3" Nullable="false" />
         </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'GBRA.dbo.vwSopFacturasCabezaTH' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="vwSopFacturasCabezaTH">
+          <Key>
+            <PropertyRef Name="soptype" />
+            <PropertyRef Name="sopnumbe" />
+          </Key>
+          <Property Name="soptype" Type="smallint" Nullable="false" />
+          <Property Name="sopnumbe" Type="char" MaxLength="21" Nullable="false" />
+          <Property Name="voidstts" Type="smallint" />
+          <Property Name="custnmbr" Type="char" MaxLength="15" Nullable="false" />
+          <Property Name="docdate" Type="datetime" Nullable="false" />
+          <Property Name="docid" Type="char" MaxLength="15" Nullable="false" />
+          <Property Name="curncyid" Type="char" MaxLength="15" Nullable="false" />
+          <Property Name="pstgstus" Type="smallint" Nullable="false" />
+          <Property Name="cstponbr" Type="char" MaxLength="21" Nullable="false" />
+        </EntityType>
         <Function Name="comgp_fnDocStatusPreCondiciones" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="TIPODOCGP" Type="smallint" Mode="In" />
           <Parameter Name="NUMDOCGP" Type="varchar" Mode="In" />
@@ -60,6 +77,19 @@ warning 6002: The table/view 'GBRA.dbo.vwRmClientes' does not have a primary key
     [vwRmClientes].[RESP_TYPE] AS [RESP_TYPE]
     FROM [dbo].[vwRmClientes] AS [vwRmClientes]</DefiningQuery>
           </EntitySet>
+          <EntitySet Name="vwSopFacturasCabezaTH" EntityType="Self.vwSopFacturasCabezaTH" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [vwSopFacturasCabezaTH].[soptype] AS [soptype], 
+    [vwSopFacturasCabezaTH].[sopnumbe] AS [sopnumbe], 
+    [vwSopFacturasCabezaTH].[voidstts] AS [voidstts], 
+    [vwSopFacturasCabezaTH].[custnmbr] AS [custnmbr], 
+    [vwSopFacturasCabezaTH].[docdate] AS [docdate], 
+    [vwSopFacturasCabezaTH].[docid] AS [docid], 
+    [vwSopFacturasCabezaTH].[curncyid] AS [curncyid], 
+    [vwSopFacturasCabezaTH].[pstgstus] AS [pstgstus], 
+    [vwSopFacturasCabezaTH].[cstponbr] AS [cstponbr]
+    FROM [dbo].[vwSopFacturasCabezaTH] AS [vwSopFacturasCabezaTH]</DefiningQuery>
+          </EntitySet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -78,6 +108,7 @@ warning 6002: The table/view 'GBRA.dbo.vwRmClientes' does not have a primary key
             <Parameter Name="TRANSICION" Mode="In" Type="String" />
           </FunctionImport>
           <EntitySet Name="vwRmClientes" EntityType="ModelGP.vwRmClientes" />
+          <EntitySet Name="vwSopFacturasCabezaTH" EntityType="ModelGP.vwSopFacturasCabezaTH" />
         </EntityContainer>
         <EntityType Name="vwRmClientes">
           <Key>
@@ -97,6 +128,21 @@ warning 6002: The table/view 'GBRA.dbo.vwRmClientes' does not have a primary key
           <Property Name="CITY" Type="String" MaxLength="35" FixedLength="false" Unicode="false" />
           <Property Name="STATE" Type="String" MaxLength="29" FixedLength="false" Unicode="false" />
           <Property Name="ZIP" Type="String" MaxLength="11" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="vwSopFacturasCabezaTH">
+          <Key>
+            <PropertyRef Name="soptype" />
+            <PropertyRef Name="sopnumbe" />
+          </Key>
+          <Property Name="soptype" Type="Int16" Nullable="false" />
+          <Property Name="sopnumbe" Type="String" Nullable="false" MaxLength="21" FixedLength="true" Unicode="false" />
+          <Property Name="voidstts" Type="Int16" />
+          <Property Name="custnmbr" Type="String" Nullable="false" MaxLength="15" FixedLength="true" Unicode="false" />
+          <Property Name="docdate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="docid" Type="String" Nullable="false" MaxLength="15" FixedLength="true" Unicode="false" />
+          <Property Name="curncyid" Type="String" Nullable="false" MaxLength="15" FixedLength="true" Unicode="false" />
+          <Property Name="pstgstus" Type="Int16" Nullable="false" />
+          <Property Name="cstponbr" Type="String" Nullable="false" MaxLength="21" FixedLength="true" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -128,6 +174,21 @@ warning 6002: The table/view 'GBRA.dbo.vwRmClientes' does not have a primary key
                 <ScalarProperty Name="RESP_TYPE" ColumnName="RESP_TYPE" />
                 <ScalarProperty Name="custname" ColumnName="custname" />
                 <ScalarProperty Name="custnmbr" ColumnName="custnmbr" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="vwSopFacturasCabezaTH">
+            <EntityTypeMapping TypeName="ModelGP.vwSopFacturasCabezaTH">
+              <MappingFragment StoreEntitySet="vwSopFacturasCabezaTH">
+                <ScalarProperty Name="cstponbr" ColumnName="cstponbr" />
+                <ScalarProperty Name="pstgstus" ColumnName="pstgstus" />
+                <ScalarProperty Name="curncyid" ColumnName="curncyid" />
+                <ScalarProperty Name="docid" ColumnName="docid" />
+                <ScalarProperty Name="docdate" ColumnName="docdate" />
+                <ScalarProperty Name="custnmbr" ColumnName="custnmbr" />
+                <ScalarProperty Name="voidstts" ColumnName="voidstts" />
+                <ScalarProperty Name="sopnumbe" ColumnName="sopnumbe" />
+                <ScalarProperty Name="soptype" ColumnName="soptype" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

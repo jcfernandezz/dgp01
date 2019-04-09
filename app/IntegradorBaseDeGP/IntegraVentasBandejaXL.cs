@@ -129,6 +129,7 @@ namespace IntegradorDeGP
             _mensaje = String.Empty;
             string eConnResult = String.Empty;
             eConnectType docEConnectSOP = new eConnectType();
+            eConnectType EliminaTrxEConnectSOP = new eConnectType();
             eConnectType entEconnect = new eConnectType();
             FacturaDeVentaSOP documentoSOP = new FacturaDeVentaSOP(_ParamExcel.ConnectionStringTargetEF);
             eConnectMethods eConnObject = new eConnectMethods();
@@ -140,6 +141,7 @@ namespace IntegradorDeGP
                 bool eliminado = false;
                 _mensaje = " Número Doc: " + hojaXl.Cells[filaXl, _ParamExcel.FacturaSopnumbe].Value.ToString().Trim() ;
 
+                //ingresa un cliente nuevo
                 entidadCliente = new Cliente(_ParamExcel.ConnectionStringTargetEF, _ParamExcel.FacturaSopTXRGNNUM.ToString(), _ParamExcel.FacturaSopCUSTNAME.ToString(), _ParamExcel.ClienteDefaultCUSTCLAS);
                 if (entidadCliente.preparaClienteEconn(hojaXl, filaXl))
                 {
@@ -155,16 +157,26 @@ namespace IntegradorDeGP
                 }
 
                 //elimina antes de integrar
-                var doc = documentoSOP.EliminaFacturaSOPEnLote(hojaXl, filaXl, sTimeStamp, _ParamExcel);
-                docEConnectSOP.SOPDeleteDocumentType = new SOPDeleteDocumentType[] { doc };
-                serializa(docEConnectSOP);
-                if (_ParamExcel.seguridadIntegrada)
+                var docAEliminar = documentoSOP.ArmaEliminacionDeFacturaEnLote(hojaXl, filaXl, sTimeStamp, _ParamExcel);
+                var fac = documentoSOP.getFacturaByKey(docAEliminar.taSopDeleteDocument.SOPNUMBE, docAEliminar.taSopDeleteDocument.SOPTYPE);
+                if (fac != null)
                 {
-                    eliminado = eConnObject.DeleteTransactionEntity(_ParamExcel.ConnStringTarget, _sDocXml);
+                    if (fac.pstgstus.Equals(0))
+                    {
+                        EliminaTrxEConnectSOP.SOPDeleteDocumentType = new SOPDeleteDocumentType[] { docAEliminar };
+                        serializa(EliminaTrxEConnectSOP);
+                        if (_ParamExcel.seguridadIntegrada)
+                        {
+                            eliminado = eConnObject.DeleteTransactionEntity(_ParamExcel.ConnStringTarget, _sDocXml);
+                        }
+                        else
+                            _sMensajeErr += "--> Econnect requiere de seguridad integrada (trx).";
+                    }
+                    else
+                        throw new ArgumentException("El documento existe y está contabilizado.");
                 }
-                else
-                    _sMensajeErr += "--> Econnect requiere de seguridad integrada (trx).";
 
+                //ingresa la nueva factura
                 documentoSOP.preparaFacturaSOP(hojaXl, filaXl, sTimeStamp, _ParamExcel);
                 docEConnectSOP.SOPTransactionType = new SOPTransactionType[] { documentoSOP.FacturaSop };
                 serializa(docEConnectSOP);
@@ -177,6 +189,11 @@ namespace IntegradorDeGP
                 }
                 else
                     _sMensajeErr += "--> Econnect requiere de seguridad integrada (trx).";
+            }
+            catch (ArgumentException ae)
+            {
+                _sMensajeErr = "Excepción. " + ae.Message + " [" + ae.TargetSite.ToString() + "]";
+                _iError++;
             }
             catch (NullReferenceException nr)
             {

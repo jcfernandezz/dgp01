@@ -6,6 +6,7 @@
     <edmx:Diagrams>
       <Diagram DiagramId="37e809c9a00f451fbe849c18a1f3d0bd" Name="Diagram1" >
         <EntityTypeShape EntityType="ModelGP.vwRmClientes" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="ModelGP.vwSopFacturasCabezaTH" Width="1.5" PointX="3.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -28,6 +28,7 @@ namespace IntegradorDeGP.BLL
         }
     
         public virtual DbSet<vwRmClientes> vwRmClientes { get; set; }
+        public virtual DbSet<vwSopFacturasCabezaTH> vwSopFacturasCabezaTH { get; set; }
     
         [DbFunction("DynamicsGPEntities", "comgp_fnDocStatusPreCondiciones")]
         public virtual IQueryable<comgp_fnDocStatusPreCondiciones_Result> comgp_fnDocStatusPreCondiciones(Nullable<short> tIPODOCGP, string nUMDOCGP, Nullable<short> tIPODOC, string nUMERODOC, string tRANSICION)

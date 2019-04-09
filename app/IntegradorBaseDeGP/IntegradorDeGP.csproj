@@ -104,6 +104,9 @@
     <Compile Include="BLL\vwRmClientes.cs">
       <DependentUpon>ModelGP.tt</DependentUpon>
     </Compile>
+    <Compile Include="BLL\vwSopFacturasCabezaTH.cs">
+      <DependentUpon>ModelGP.tt</DependentUpon>
+    </Compile>
     <Compile Include="Cliente.cs" />
     <Compile Include="BLL\EntitiesGP.cs" />
     <Compile Include="BLL\comgp_fnDocStatusPreCondiciones_Result.cs">

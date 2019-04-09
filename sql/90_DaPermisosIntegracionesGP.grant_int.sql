@@ -5,10 +5,12 @@
 --
 -----------------------------------------------------------------------------------
 
-use  integra10 --integra50	--
+use integra10 --integra50	--
 go
 IF DATABASE_PRINCIPAL_ID('rol_integracionesGP') IS NULL
 	create role rol_integracionesGP;
+
+grant select on dbo.comgp_fnDocStatusPreCondiciones to rol_integracionesGP;
 
 grant select on compuertagp.vwIntegracionesVentas to rol_integracionesGP;
 grant select on compuertagp.vwPreFacturas to rol_integracionesGP;

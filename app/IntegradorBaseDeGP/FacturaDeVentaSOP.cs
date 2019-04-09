@@ -124,11 +124,14 @@ namespace IntegradorDeGP
             //}
         }
 
-        public taSopUserDefined armaFacturaDefUsuarioEconn(string usrTab01_predetValue, string usrTab02_predetValue)
+        public taSopUserDefined armaFacturaDefUsuarioEconn(string sopnumbe, short soptype, string usrTab01_predetValue, string usrTab02_predetValue)
         {
             taSopUserDefined usrDefined = new taSopUserDefined();
+            usrDefined.SOPNUMBE = sopnumbe;
+            usrDefined.SOPTYPE = soptype;
             usrDefined.USRTAB01 = usrTab01_predetValue;
-            usrDefined.USRTAB03 = usrTab02_predetValue;
+            usrDefined.USRTAB09 = usrTab02_predetValue;
+            //usrDefined.USRTAB03 = usrTab02_predetValue;
             return usrDefined;
         }
 
@@ -177,7 +180,7 @@ namespace IntegradorDeGP
             return idxFila;
         }
 
-        internal SOPDeleteDocumentType EliminaFacturaSOPEnLote(ExcelWorksheet hojaXl, int fila, string sTimeStamp, IParametrosXL param)
+        internal SOPDeleteDocumentType ArmaEliminacionDeFacturaEnLote(ExcelWorksheet hojaXl, int fila, string sTimeStamp, IParametrosXL param)
         {
             string sopnumbe = hojaXl.Cells[fila, param.FacturaSopnumbe].Value.ToString().Trim();
             var llaveFactura = ObtieneLlaveFactura(hojaXl, fila, param, sopnumbe);
@@ -198,7 +201,7 @@ namespace IntegradorDeGP
         {
             taSopLineIvcInsert_ItemsTaSopLineIvcInsert facturaSopDe = new taSopLineIvcInsert_ItemsTaSopLineIvcInsert();
             //facturaSopDe.UpdateIfExists = 1;
-            facturaSopDe.RecreateDist = 1;  
+            //facturaSopDe.RecreateDist = 1;  
             facturaSopDe.SOPTYPE = facturaSopCa.SOPTYPE;
             facturaSopDe.SOPNUMBE = facturaSopCa.SOPNUMBE;
             facturaSopDe.CUSTNMBR = facturaSopCa.CUSTNMBR;
@@ -273,6 +276,20 @@ namespace IntegradorDeGP
 
         }
 
+        public BLL.vwSopFacturasCabezaTH getFacturaByKey(string sopnumbe, short soptype)
+        {
+            BLL.vwSopFacturasCabezaTH f = new BLL.vwSopFacturasCabezaTH();
+            using (BLL.DynamicsGPEntities gp = new BLL.DynamicsGPEntities(connStringEF))
+            {
+                f = gp.vwSopFacturasCabezaTH.Where(w => w.sopnumbe.Equals(sopnumbe.Trim()) && w.soptype.Equals(soptype))
+                                                .FirstOrDefault();
+
+            }
+
+            return f;
+
+        }
+
         public void preparaFacturaSOP(ExcelWorksheet hojaXl, int filaXl, string sTimeStamp, IParametrosXL param)
         {
             List<taSopLineIvcInsert_ItemsTaSopLineIvcInsert> itemsDeFactura = armaFacturaCaEconn(hojaXl, filaXl, sTimeStamp, param);
@@ -282,7 +299,7 @@ namespace IntegradorDeGP
             facturaSop.taSopLineIvcInsert_Items = new taSopLineIvcInsert_ItemsTaSopLineIvcInsert[longitud]; //{ facturaSopDe };
             facturaSop.taSopLineIvcInsert_Items = itemsDeFactura.ToArray();
             if (param.IncluirUserDef)
-                facturaSop.taSopUserDefined = armaFacturaDefUsuarioEconn(param.Usrtab01_predetValue, param.Usrtab02_predetValue);
+                facturaSop.taSopUserDefined = armaFacturaDefUsuarioEconn(facturaSopCa.SOPNUMBE, facturaSopCa.SOPTYPE, param.Usrtab01_predetValue, param.Usrtab02_predetValue);
 
             
 
