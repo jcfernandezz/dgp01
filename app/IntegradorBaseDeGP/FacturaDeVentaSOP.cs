@@ -239,7 +239,7 @@ namespace IntegradorDeGP
             facturaSopDe.CUSTNMBR = facturaSopCa.CUSTNMBR;
             facturaSopDe.DOCDATE = facturaSopCa.DOCDATE;
 
-            facturaSopDe.ITEMNMBR = facturaSopCa.DOCID;
+            facturaSopDe.ITEMNMBR = hojaXl.Cells[fila, param.FacturaSopCodServicio].Value?.ToString(); //facturaSopCa.DOCID;
             facturaSopDe.ITEMDESC = hojaXl.Cells[fila, param.FacturaSopReferencia].Value?.ToString();
             facturaSopDe.QUANTITY = 1;
             facturaSopDe.DEFEXTPRICE = 1;   //1: calcular el precio extendido en base al precio unitario y la cantidad
