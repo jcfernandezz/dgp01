@@ -21,6 +21,7 @@ namespace IntegradorDeGP
         private taUpdateCreateCustomerRcd _Customer;
         private RMCustomerMasterType _CustomerType;
         private RMCustomerMasterType[] _arrCustomerType;
+        private int _colClienteAddress1;
 
         public RMCustomerMasterType[] ArrCustomerType
         {
@@ -35,7 +36,7 @@ namespace IntegradorDeGP
             }
         }
 
-        public Cliente(string DatosConexionDB, string cFacturaSopTXRGNNUM, string cFacturaSopCUSTNAME, string ClienteDefaultCUSTCLAS)
+        public Cliente(string DatosConexionDB, string cFacturaSopTXRGNNUM, string cFacturaSopCUSTNAME, string ClienteDefaultCUSTCLAS, string cClienteAddress1)
         {
             _DatosConexionDB = DatosConexionDB;
             _ClienteDefaultCUSTCLAS = ClienteDefaultCUSTCLAS;
@@ -44,23 +45,26 @@ namespace IntegradorDeGP
                 throw new NullReferenceException("No ha definido la columna del Id de impuestos del cliente (facturaSopCa.TXRGNNUM). Revise el archivo de configuración de la aplicación. ");
             if (!int.TryParse(cFacturaSopCUSTNAME, out _colCUSTNAME))
                 throw new NullReferenceException("No ha definido la columna del nombre del cliente (facturaSopCa.CUSTNAME). Revise el archivo de configuración de la aplicación. ");
-            
+            if (!int.TryParse(cClienteAddress1, out _colClienteAddress1))
+                throw new NullReferenceException("No ha definido la columna de la dirección 1 del cliente (facturaSopCa.direccion1). Revise el archivo de configuración de la aplicación. ");
+
         }
 
-        private bool existeIdImpuestoCliente(string txrgnnum)
+        private string existeIdImpuestoCliente(string txrgnnum)
         {
             int n = 0;
             string cliente = string.Empty;
             using (BLL.DynamicsGPEntities gp = new BLL.DynamicsGPEntities(_DatosConexionDB))
             {
                 var c = gp.vwRmClientes.Where(w => w.txrgnnum.Equals(txrgnnum.Trim()) && w.inactive == 0)
-                                    .Select(s => new { custnmbr = s.custnmbr.Trim() });
+                                    .Select(s => s.custnmbr.Trim());
                 n = c.Count();
-                foreach (var r in c)
-                    cliente = r.custnmbr;
+                //foreach (var r in c)
+                //    cliente = r.custnmbr;
+                cliente = c.FirstOrDefault();
             }
 
-            return (n != 0);
+            return (cliente);
         }
 
         /// <summary>
@@ -83,23 +87,23 @@ namespace IntegradorDeGP
 
         }
 
-        public void armaClienteEconn(ExcelWorksheet hojaXl, int fila)
+        public void armaClienteEconn(ExcelWorksheet hojaXl, int fila, string custnmbr)
         {
             try
             {
                 _Customer = new taUpdateCreateCustomerRcd();
                 _CustomerType = new RMCustomerMasterType();
 
-                _Customer.CUSTNMBR = hojaXl.Cells[fila, _colIdImpuestoCliente].Value.ToString().Trim().Replace(".", String.Empty).Replace("-", String.Empty);
+                _Customer.CUSTNMBR = custnmbr == null? hojaXl.Cells[fila, _colIdImpuestoCliente].Value.ToString().Trim().Replace(".", String.Empty).Replace("-", String.Empty) : custnmbr;
                 _Customer.CUSTNAME = hojaXl.Cells[fila, _colCUSTNAME].Value.ToString().Trim();
                 _Customer.CUSTCLAS = _ClienteDefaultCUSTCLAS;
                 _Customer.ADRSCODE = "MAIN";
-
+                _Customer.ADDRESS1 = hojaXl.Cells[fila, _colClienteAddress1].Value.ToString().Trim();
                 if (_colIdImpuestoCliente>0)
                     _Customer.TXRGNNUM = hojaXl.Cells[fila, _colIdImpuestoCliente].Value.ToString().Trim();
 
-                _Customer.UpdateIfExists = 0;
-                _Customer.UseCustomerClass = 1;
+                _Customer.UpdateIfExists = 1;
+                _Customer.UseCustomerClass = custnmbr == null ? Convert.ToInt16(1) : Convert.ToInt16(0);
 
                 _CustomerType.taUpdateCreateCustomerRcd = _Customer;
                 _arrCustomerType = new RMCustomerMasterType[] { _CustomerType};
@@ -117,24 +121,17 @@ namespace IntegradorDeGP
         /// </summary>
         /// <param name="hojaXl">Hoja excel</param>
         /// <param name="filaXl">Fila de la hoja excel a procesar</param>
-        public bool preparaClienteEconn(ExcelWorksheet hojaXl, int filaXl)
+        public void preparaClienteEconn(ExcelWorksheet hojaXl, int filaXl)
         {
-            bool integrar = false;
-            try
-            {
                 validaDatosDeIngreso(hojaXl, filaXl);
+                string custnmbr = existeIdImpuestoCliente(hojaXl.Cells[filaXl, _colIdImpuestoCliente].Value.ToString().Trim());
+                armaClienteEconn(hojaXl, filaXl, custnmbr);
 
-                if (!existeIdImpuestoCliente(hojaXl.Cells[filaXl, _colIdImpuestoCliente].Value.ToString().Trim()))
-                {
-                    armaClienteEconn(hojaXl, filaXl);
-                    integrar = true;
-                }
-                return integrar;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                //if (!existeIdImpuestoCliente(hojaXl.Cells[filaXl, _colIdImpuestoCliente].Value.ToString().Trim()))
+                //{
+                //    armaClienteEconn(hojaXl, filaXl);
+                //    integrar = true;
+                //}
         }
 
     }

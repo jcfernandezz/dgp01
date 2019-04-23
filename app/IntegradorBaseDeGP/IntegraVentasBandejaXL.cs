@@ -141,10 +141,12 @@ namespace IntegradorDeGP
                 bool eliminado = false;
                 _mensaje = " Número Doc: " + hojaXl.Cells[filaXl, _ParamExcel.FacturaSopnumbe].Value.ToString().Trim() ;
 
-                //ingresa un cliente nuevo
-                entidadCliente = new Cliente(_ParamExcel.ConnectionStringTargetEF, _ParamExcel.FacturaSopTXRGNNUM.ToString(), _ParamExcel.FacturaSopCUSTNAME.ToString(), _ParamExcel.ClienteDefaultCUSTCLAS);
-                if (entidadCliente.preparaClienteEconn(hojaXl, filaXl))
-                {
+                //ingresa un cliente nuevo o actualiza uno existente
+                entidadCliente = new Cliente(_ParamExcel.ConnectionStringTargetEF, _ParamExcel.FacturaSopTXRGNNUM.ToString(), _ParamExcel.FacturaSopCUSTNAME.ToString(), 
+                                            _ParamExcel.ClienteDefaultCUSTCLAS, _ParamExcel.FacturaSopCliDireccion1.ToString());
+                //if (entidadCliente.preparaClienteEconn(hojaXl, filaXl))
+                //{
+                entidadCliente.preparaClienteEconn(hojaXl, filaXl);
                    entEconnect.RMCustomerMasterType = entidadCliente.ArrCustomerType;
                    serializa(entEconnect);
                     if (_ParamExcel.seguridadIntegrada)
@@ -154,9 +156,9 @@ namespace IntegradorDeGP
                     }
                     else
                         _mensaje += "--> Econnect requiere de seguridad integrada (clientes).";
-                }
+                //}
 
-                //elimina antes de integrar
+                //elimina factura antes de integrar
                 var docAEliminar = documentoSOP.ArmaEliminacionDeFacturaEnLote(hojaXl, filaXl, sTimeStamp, _ParamExcel);
                 var fac = documentoSOP.getFacturaByKey(docAEliminar.taSopDeleteDocument.SOPNUMBE, docAEliminar.taSopDeleteDocument.SOPTYPE);
                 if (fac != null)
