@@ -36,7 +36,7 @@ namespace IntegradorDeGP.Herramientas
 
         static public string Izquierda(string Texto, int Cuantos)
         {
-            if (Texto.Length > Cuantos && Cuantos > 0)
+            if (Texto?.Length > Cuantos && Cuantos > 0)
                 return Texto.Substring(0, Cuantos);
             else
                 return Texto;

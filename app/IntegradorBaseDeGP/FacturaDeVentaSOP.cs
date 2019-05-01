@@ -207,7 +207,7 @@ namespace IntegradorDeGP
             facturaSopDe.CUSTNMBR = facturaSopCa.CUSTNMBR;
             facturaSopDe.DOCDATE = facturaSopCa.DOCDATE;
             facturaSopDe.NONINVEN = 1;
-            facturaSopDe.ITEMNMBR = hojaXl.Cells[fila, param.FacturaSopItemnmbr].Value.ToString();
+            facturaSopDe.ITEMNMBR = Herramientas.Utiles.Izquierda(hojaXl.Cells[fila, param.FacturaSopItemnmbr].Value?.ToString(), 30);
             facturaSopDe.ITEMDESC = hojaXl.Cells[fila, param.FacturaSopItemnmbrDescr].Value?.ToString();
             facturaSopDe.QUANTITY = 0;
             facturaSopDe.DEFEXTPRICE = 1;   //1: calcular el precio extendido en base al precio unitario y la cantidad
@@ -239,7 +239,7 @@ namespace IntegradorDeGP
             facturaSopDe.CUSTNMBR = facturaSopCa.CUSTNMBR;
             facturaSopDe.DOCDATE = facturaSopCa.DOCDATE;
 
-            facturaSopDe.ITEMNMBR = hojaXl.Cells[fila, param.FacturaSopCodServicio].Value?.ToString(); //facturaSopCa.DOCID;
+            facturaSopDe.ITEMNMBR = hojaXl.Cells[fila, param.FacturaSopCodServicio].Value?.ToString(); 
             facturaSopDe.ITEMDESC = hojaXl.Cells[fila, param.FacturaSopReferencia].Value?.ToString();
             facturaSopDe.QUANTITY = 1;
             facturaSopDe.DEFEXTPRICE = 1;   //1: calcular el precio extendido en base al precio unitario y la cantidad

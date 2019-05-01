@@ -142,10 +142,16 @@ namespace IntegradorDeGP
                 _mensaje = " Número Doc: " + hojaXl.Cells[filaXl, _ParamExcel.FacturaSopnumbe].Value.ToString().Trim() ;
 
                 //ingresa un cliente nuevo o actualiza uno existente
-                entidadCliente = new Cliente(_ParamExcel.ConnectionStringTargetEF, _ParamExcel.FacturaSopTXRGNNUM.ToString(), _ParamExcel.FacturaSopCUSTNAME.ToString(), 
-                                            _ParamExcel.ClienteDefaultCUSTCLAS, _ParamExcel.FacturaSopCliDireccion1.ToString());
-                //if (entidadCliente.preparaClienteEconn(hojaXl, filaXl))
-                //{
+                entidadCliente = new Cliente(_ParamExcel.ConnectionStringTargetEF, _ParamExcel.FacturaSopTXRGNNUM.ToString(), _ParamExcel.FacturaSopCUSTNAME.ToString(), _ParamExcel.ClienteDefaultCUSTCLAS);
+
+                entidadCliente.ColClienteAddress1 = _ParamExcel.FacturaSopCliDireccion1;
+                entidadCliente.ColClienteAddress2 = _ParamExcel.FacturaSopCliDireccion2;
+                entidadCliente.ColClienteAddress3 = _ParamExcel.FacturaSopCliDireccion3;
+                entidadCliente.ColClienteCiudad = _ParamExcel.FacturaSopCliCiudad;
+                entidadCliente.ColClienteEmail = _ParamExcel.FacturaSopCliEmail;
+                entidadCliente.ColClienteEstado = _ParamExcel.FacturaSopCliEstado;
+                entidadCliente.ColClienteZipCode = _ParamExcel.FacturaSopCliZipCode;
+
                 entidadCliente.preparaClienteEconn(hojaXl, filaXl);
                    entEconnect.RMCustomerMasterType = entidadCliente.ArrCustomerType;
                    serializa(entEconnect);
@@ -156,7 +162,6 @@ namespace IntegradorDeGP
                     }
                     else
                         _mensaje += "--> Econnect requiere de seguridad integrada (clientes).";
-                //}
 
                 //elimina factura antes de integrar
                 var docAEliminar = documentoSOP.ArmaEliminacionDeFacturaEnLote(hojaXl, filaXl, sTimeStamp, _ParamExcel);
@@ -352,7 +357,7 @@ namespace IntegradorDeGP
                         int iFilasIntegradas = 0;
                         int iFacturaIniciaEn = 0;
                         int iAntesIntegradas = 0;
-                        OnProgreso(1, "INICIANDO CARGA DE ARCHIVO " + sNombreArchivo + "...");              //Notifica al suscriptor
+                        OnProgreso(1, "*** INICIANDO CARGA DE ARCHIVO " + sNombreArchivo + "...");              //Notifica al suscriptor
                         if (startRow > 1)
                             hojaXl.Cells[startRow - 1, this._ParamExcel.FacturaSopColumnaMensajes].Value = "Observaciones";
 
@@ -388,7 +393,6 @@ namespace IntegradorDeGP
                             }
                             OnProgreso(100 / iTotal, _mensaje + " " + _sMensajeErr);
                         }
-                        OnProgreso(100, "----------------------------------------------");
                         _sMensajeErr = "INTEGRACION FINALIZADA";
                         OnProgreso(100, _sMensajeErr);
                         OnProgreso(100, "Nuevas facturas integradas: " + iFacturasIntegradas.ToString());
@@ -396,6 +400,7 @@ namespace IntegradorDeGP
                         OnProgreso(100, "Número de filas con error: " + (iTotal - iFilasIntegradas - iAntesIntegradas).ToString());
                         OnProgreso(100, "Número de filas anteriormente integradas: " + iAntesIntegradas.ToString());
                         OnProgreso(100, "Total de filas leídas: " + iTotal.ToString());
+                        OnProgreso(100, "----------------------------------------------");
 
                         FileInfo finfo = new FileInfo(Path.Combine(carpetaDestino, nombreSinExtension + ".xlsx"));
                         item.SaveAs(finfo);
