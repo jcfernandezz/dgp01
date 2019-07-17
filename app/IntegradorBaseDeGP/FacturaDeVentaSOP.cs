@@ -64,9 +64,16 @@ namespace IntegradorDeGP
             facturaSop = new SOPTransactionType();
         }
 
+        /// <summary>
+        /// Crea el objeto econnect de una factura SOP
+        /// </summary>
+        /// <param name="hojaXl">Hoja que contiene los datos de las facturas</param>
+        /// <param name="fila">Fila donde empieza una factura</param>
+        /// <param name="sTimeStamp">Id de lote</param>
+        /// <param name="param">Parámetro que contiene los índices de columna</param>
+        /// <returns></returns>
         public List<taSopLineIvcInsert_ItemsTaSopLineIvcInsert> armaFacturaCaEconn(ExcelWorksheet hojaXl, int fila, string sTimeStamp, IParametrosXL param)
         {
-            //int idxFila = fila;
             try
             {
                 string sopnumbe = hojaXl.Cells[fila, param.FacturaSopnumbe].Value.ToString().Trim();
@@ -83,14 +90,15 @@ namespace IntegradorDeGP
                 facturaSopCa.SOPTYPE = 3;
                 facturaSopCa.DOCID = "SERIE " + serie;
                 facturaSopCa.DOCDATE = DateTime.Parse(hojaXl.Cells[fila, param.FacturaSopDocdate].Value.ToString().Trim()).ToString(param.FormatoFechaXL);
-                facturaSopCa.DUEDATE = DateTime.Parse(hojaXl.Cells[fila, param.FacturaSopDuedate].Value.ToString().Trim()).ToString(param.FormatoFechaXL);
-                //facturaSopCa.UpdateExisting = 1;
+
+                if (!string.IsNullOrEmpty( hojaXl.Cells[fila, param.FacturaSopDuedate].Value?.ToString()))
+                    facturaSopCa.DUEDATE = DateTime.Parse(hojaXl.Cells[fila, param.FacturaSopDuedate].Value.ToString().Trim()).ToString(param.FormatoFechaXL);
 
                 String custnmbr = hojaXl.Cells[fila, param.FacturaSopTXRGNNUM].Value == null ? "_enblanco" : hojaXl.Cells[fila, param.FacturaSopTXRGNNUM].Value.ToString().Trim();
                 facturaSopCa.CUSTNMBR = getCustomer(custnmbr);
                 facturaSopCa.CREATETAXES = 1;   //1:crear impuestos automáticamente
                 facturaSopCa.DEFPRICING = 0;    //0:se debe indicar el precio unitario
-                facturaSopCa.REFRENCE = "Carga automática";
+                facturaSopCa.REFRENCE = hojaXl.Name + " - Carga automática";
 
                 List<taSopLineIvcInsert_ItemsTaSopLineIvcInsert> listaDeItemsDeFactura = new List<taSopLineIvcInsert_ItemsTaSopLineIvcInsert>();
 
@@ -124,14 +132,15 @@ namespace IntegradorDeGP
             //}
         }
 
-        public taSopUserDefined armaFacturaDefUsuarioEconn(string sopnumbe, short soptype, string usrTab01_predetValue, string usrTab02_predetValue)
+        public taSopUserDefined armaFacturaDefUsuarioEconn(string sopnumbe, short soptype, string usrTab01_predetValue, string usrTab02_predetValue, string usrDef1_predetValue)
         {
             taSopUserDefined usrDefined = new taSopUserDefined();
             usrDefined.SOPNUMBE = sopnumbe;
             usrDefined.SOPTYPE = soptype;
             usrDefined.USRTAB01 = usrTab01_predetValue;
             usrDefined.USRTAB09 = usrTab02_predetValue;
-            //usrDefined.USRTAB03 = usrTab02_predetValue;
+            usrDefined.USERDEF1 = usrDef1_predetValue;
+            //usrDefined.USRDEFND1 = usrDef1_predetValue;
             return usrDefined;
         }
 
@@ -299,9 +308,7 @@ namespace IntegradorDeGP
             facturaSop.taSopLineIvcInsert_Items = new taSopLineIvcInsert_ItemsTaSopLineIvcInsert[longitud]; //{ facturaSopDe };
             facturaSop.taSopLineIvcInsert_Items = itemsDeFactura.ToArray();
             if (param.IncluirUserDef)
-                facturaSop.taSopUserDefined = armaFacturaDefUsuarioEconn(facturaSopCa.SOPNUMBE, facturaSopCa.SOPTYPE, param.Usrtab01_predetValue, param.Usrtab02_predetValue);
-
-            
+                facturaSop.taSopUserDefined = armaFacturaDefUsuarioEconn(facturaSopCa.SOPNUMBE, facturaSopCa.SOPTYPE, param.Usrtab01_predetValue, param.Usrtab02_predetValue, hojaXl.Cells[filaXl, param.FacturaSopCCMCliente].Value.ToString());
 
         }
     }
