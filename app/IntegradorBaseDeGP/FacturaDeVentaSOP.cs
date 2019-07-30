@@ -209,8 +209,6 @@ namespace IntegradorDeGP
         private taSopLineIvcInsert_ItemsTaSopLineIvcInsert CreaItemsFicticiosDeFactura(ExcelWorksheet hojaXl, int fila, IParametrosXL param)
         {
             taSopLineIvcInsert_ItemsTaSopLineIvcInsert facturaSopDe = new taSopLineIvcInsert_ItemsTaSopLineIvcInsert();
-            //facturaSopDe.UpdateIfExists = 1;
-            //facturaSopDe.RecreateDist = 1;  
             facturaSopDe.SOPTYPE = facturaSopCa.SOPTYPE;
             facturaSopDe.SOPNUMBE = facturaSopCa.SOPNUMBE;
             facturaSopDe.CUSTNMBR = facturaSopCa.CUSTNMBR;
@@ -220,6 +218,9 @@ namespace IntegradorDeGP
             facturaSopDe.ITEMDESC = hojaXl.Cells[fila, param.FacturaSopItemnmbrDescr].Value?.ToString();
             facturaSopDe.QUANTITY = 0;
             facturaSopDe.DEFEXTPRICE = 1;   //1: calcular el precio extendido en base al precio unitario y la cantidad
+            facturaSopDe.INVINDX = param.FacturaSopDeGPCuentaDefault;
+            facturaSopDe.SLSINDX = param.FacturaSopDeGPCuentaDefault;
+            facturaSopDe.CSLSINDX = param.FacturaSopDeGPCuentaDefault;
 
             if (!string.IsNullOrEmpty(hojaXl.Cells[fila, param.FacturaSopDeReqShipDate].Value?.ToString()))
                 facturaSopDe.ReqShipDate =  DateTime.Parse(hojaXl.Cells[fila, param.FacturaSopDeReqShipDate].Value?.ToString().Trim()).ToString(param.FormatoFechaXL);
@@ -242,7 +243,6 @@ namespace IntegradorDeGP
         private taSopLineIvcInsert_ItemsTaSopLineIvcInsert CreaItemDeFactura(ExcelWorksheet hojaXl, int fila, IParametrosXL param)
         {
             taSopLineIvcInsert_ItemsTaSopLineIvcInsert facturaSopDe = new taSopLineIvcInsert_ItemsTaSopLineIvcInsert();
-            //facturaSopDe.UpdateIfExists = 1;
             facturaSopDe.SOPTYPE = facturaSopCa.SOPTYPE;
             facturaSopDe.SOPNUMBE = facturaSopCa.SOPNUMBE;
             facturaSopDe.CUSTNMBR = facturaSopCa.CUSTNMBR;
@@ -250,6 +250,8 @@ namespace IntegradorDeGP
 
             facturaSopDe.ITEMNMBR = hojaXl.Cells[fila, param.FacturaSopCodServicio].Value?.ToString(); 
             facturaSopDe.ITEMDESC = hojaXl.Cells[fila, param.FacturaSopReferencia].Value?.ToString();
+            facturaSopDe.CMMTTEXT = hojaXl.Cells[fila, param.FacturaSopReferencia].Value?.ToString();
+
             facturaSopDe.QUANTITY = 1;
             facturaSopDe.DEFEXTPRICE = 1;   //1: calcular el precio extendido en base al precio unitario y la cantidad
 
